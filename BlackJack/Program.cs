@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace BlackJack
         static void Main(string[] args)
         {
             //create a list of players
-            List <Player> players = new List<Player>();
+            List<Player> players = new List<Player>();
 
             //get the players info
             for (int i = 0; i < 2; i++)
@@ -31,6 +32,19 @@ namespace BlackJack
 
             Console.WriteLine("-----------------------------------------------");
             Console.WriteLine("Players, welcome to the game of BLACK JACK!");
+            Console.WriteLine("-----------------------------------------------");
+
+            //rules book
+            Console.Write("Display rules (y/n)? ");
+            string rules = Console.ReadLine().ToLower();
+            if (rules == "y")
+            {
+                Console.WriteLine("");
+                RulesBook();
+            }
+
+            Console.WriteLine("-----------------------------------------------");
+            Console.WriteLine("GAME ON");
             Console.WriteLine("-----------------------------------------------");
 
             playersTurn(players);
@@ -57,18 +71,37 @@ namespace BlackJack
                 Console.WriteLine($"Your score is {total}");
 
                 //ask the player for the next move
-                Console.WriteLine($"Do you wish to stand or hit (s/h)?");
+                Console.Write($"\nDo you wish to stand or hit (s/h)?");
                 string choice = Console.ReadLine().ToLower();
-                while (choice != "s")
+                bool nextPlayer = false;
+
+                while (choice == "h" && !nextPlayer)
                 {
-                    total = hit(choice, total, random);
-                    Console.WriteLine($"Do you wish to stand or hit (s/h)?");
-                    choice = Console.ReadLine().ToLower();
+                    total = hit(total, random);
+                    Console.WriteLine($"\nYour score is {total}");
+                    
+                    //in case of a bust or BJ
+                    if (total > 21)
+                    {
+                        Console.WriteLine("\nIt’s a BUST!");
+                        nextPlayer = true;
+                    }
+                    else if (total == 21)
+                    {
+                        Console.WriteLine("\nIt’s a BLACKJACK!");
+                        nextPlayer= true;
+                    }
+
+                    if(!nextPlayer)
+                    {
+                        Console.Write($"\nDo you wish to stand or hit (s/h)?");
+                        choice = Console.ReadLine().ToLower();
+                    }
+                    
                 }
 
                 players[i].score = total;
                 Console.WriteLine("-----------------------------------------------");
-
             }
         }
 
@@ -78,7 +111,7 @@ namespace BlackJack
             var random = new Random();
 
             Console.WriteLine("It’s the Dealer’s turn!");
-           
+
             Card card1 = CardDealt(random);
             Console.WriteLine($"Card dealt is {card1.cardName} of {card1.cardSuit} with a value of {card1.cardValue}");
             Card card2 = CardDealt(random);
@@ -86,16 +119,21 @@ namespace BlackJack
 
             //count the value of the cards
             int total = card1.cardValue + card2.cardValue;
-            Console.WriteLine($"Your score is {total}");
+            Console.WriteLine($"Dealer’s score is {total}\n");
 
-            //ask the player for the next move
-            Console.WriteLine($"Do you wish to stand or hit (s/h)?");
-            string choice = Console.ReadLine().ToLower();
-            while (choice != "s")
+            while (total < 17)
             {
-                total = hit(choice, total, random);
-                Console.WriteLine($"Do you wish to stand or hit (s/h)?");
-                choice = Console.ReadLine().ToLower();
+                total = hit(total, random);
+                Console.WriteLine($"Dealer’s score is {total}");
+            }
+            //in case of a bust or BJ
+            if (total > 21)
+            {
+                Console.WriteLine("\nDealer’s gotten a BUST!");
+            }
+            else if (total == 21)
+            {
+                Console.WriteLine("\nDealer’s gotten a BLACKJACK!");
             }
 
             return total;
@@ -103,7 +141,7 @@ namespace BlackJack
             Console.WriteLine("-----------------------------------------------");
         }
 
-        public static int hit(string choice, int total, Random random)
+        public static int hit(int total, Random random)
         {
             //deal another card
             Card card3 = CardDealt(random);
@@ -111,7 +149,6 @@ namespace BlackJack
 
             //count the total score
             total += card3.cardValue;
-            Console.WriteLine($"Your score is {total}");
 
             return total;
         }
@@ -120,9 +157,9 @@ namespace BlackJack
         {
             //get the list of all cards
             List<Card> cards = Card.AllCards();
-            
+
             //get the random index of a card that will be dealt
-           
+
             int index = random.Next(0, cards.Count);
 
             //find the randomly generated card
@@ -133,9 +170,11 @@ namespace BlackJack
 
         public static void payOut(List<Player> players, int dealersScore)
         {
+            Console.WriteLine("-----------------------------------------------");
+
             for (int i = 0; i < players.Count; i++)
             {
-                if (players[i].score >= dealersScore)
+                if (players[i].score > dealersScore && players[i].score < 21)
                 {
                     int win = 2 * players[i].bet;
                     Console.WriteLine($"Congratulations! {players[i].name} wins over the dealer, you won {win:c}.");
@@ -155,10 +194,26 @@ namespace BlackJack
                 }
                 else if (dealersScore > 21)
                 {
-                    int win = 2* players[i].bet;
+                    int win = 2 * players[i].bet;
                     Console.WriteLine($"Congratulations! Dealer’s busted, {players[i].name} wins, you won {win:c}.");
                 }
             }
         }
+
+        public static void RulesBook()
+        {
+            string path = @"../../../BlackJack_rules.txt";
+
+            //read in all lines
+            using (StreamReader sr = new StreamReader(path))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    Console.WriteLine(line);
+                }
+            }
+        }
+
     }
 }

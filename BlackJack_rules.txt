@@ -1,0 +1,18 @@
+OBJECT OF THE GAME
+- Each player attempts to beat the dealer by getting a count as close to 21 as possible without going over 21.
+
+CARDS VALUE
+- Cards 2-10
+- Kings, Queens and Jacks = 10
+- Aces = either 1 or 11, always in the favor of a player
+
+THE PLAY
+- the player decides whether to STAND (continue just with given cards) or HIT (ask for another card to get closer to 21)
+- the player can get as many cards as he likes as long as he is under or on 21, otherwise. it is a BUST - the player loses and the dealer collects their bet
+
+WIN
+- Score of 21 = BLACKJACK -> triple the bet
+- Score higher than the dealer -> double the bet
+- Score same as the dealer -> bet money back
+- Bust -> Lost your bet money
+
